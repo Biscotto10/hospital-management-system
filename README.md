@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Hospital Management System (HMS)
 
 A comprehensive Hospital Management System built with Node.js, Express, MySQL, and vanilla HTML/CSS/JavaScript.
@@ -27,6 +26,3 @@ A comprehensive Hospital Management System built with Node.js, Express, MySQL, a
 - LocalStorage for session management
 
 ## Project Structure
-=======
-# hospital-management-system
->>>>>>> 84609bff5a459b71556fab17d5ece70e91c9edb8

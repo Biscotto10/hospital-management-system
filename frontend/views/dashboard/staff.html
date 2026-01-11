@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Hospital Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <style>
+        :root {
+            --staff-primary: #4a6fa5;
+            --staff-secondary: #166088;
+            --staff-accent: #6b8cbc;
+            --staff-success: #4caf50;
+            --staff-warning: #ff9800;
+            --staff-danger: #f44336;
+            --staff-info: #00bcd4;
+        }
+        
+        .staff-sidebar {
+            background: linear-gradient(180deg, var(--staff-primary) 0%, var(--staff-secondary) 100%);
+            color: white;
+            min-height: 100vh;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        .staff-sidebar .nav-link {
+            color: rgba(255,255,255,0.9);
+            padding: 12px 20px;
+            margin: 5px 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .staff-sidebar .nav-link:hover,
+        .staff-sidebar .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .staff-sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .staff-badge {
+            background: var(--staff-accent);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .staff-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+            border-top: 4px solid var(--staff-primary);
+        }
+        
+        .staff-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .staff-card-header {
+            background: linear-gradient(135deg, var(--staff-primary) 0%, var(--staff-secondary) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        
+        .staff-stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border-left: 5px solid var(--staff-primary);
+        }
+        
+        .staff-stat-card.warning { border-left-color: var(--staff-warning); }
+        .staff-stat-card.success { border-left-color: var(--staff-success); }
+        .staff-stat-card.danger { border-left-color: var(--staff-danger); }
+        .staff-stat-card.info { border-left-color: var(--staff-info); }
+        
+        .staff-stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .staff-stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.2;
+        }
+        
+        .staff-stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-staff {
+            background: linear-gradient(135deg, var(--staff-primary) 0%, var(--staff-secondary) 100%);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-staff:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(74, 111, 165, 0.3);
+            color: white;
+        }
+        
+        .btn-staff-outline {
+            border: 2px solid var(--staff-primary);
+            color: var(--staff-primary);
+            background: transparent;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-staff-outline:hover {
+            background: var(--staff-primary);
+            color: white;
+        }
+        
+        .staff-table th {
+            background: #f8f9fa;
+            color: var(--staff-secondary);
+            font-weight: 600;
+            border-top: none;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .task-priority-high {
+            border-left: 4px solid var(--staff-danger);
+        }
+        
+        .task-priority-medium {
+            border-left: 4px solid var(--staff-warning);
+        }
+        
+        .task-priority-low {
+            border-left: 4px solid var(--staff-success);
+        }
+        
+        .inventory-low {
+            background: #fff3cd !important;
+            color: #856404 !important;
+        }
+        
+        .inventory-critical {
+            background: #f8d7da !important;
+            color: #721c24 !important;
+        }
+        
+        .admission-status-admitted {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .admission-status-discharged {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .staff-navbar {
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 15px 0;
+        }
+        
+        .quick-action-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            height: 100%;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--staff-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .quick-action-icon {
+            font-size: 2rem;
+            color: var(--staff-primary);
+            margin-bottom: 10px;
+        }
+        
+        .staff-profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--staff-primary);
+            object-fit: cover;
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background: var(--staff-danger);
+            border-radius: 50%;
+        }
+        
+        @media (max-width: 768px) {
+            .staff-sidebar {
+                min-height: auto;
+                margin-bottom: 20px;
+            }
+            
+            .staff-stat-card {
+                margin-bottom: 20px;
+            }
+        }
+        
+        .fc-today {
+            background: rgba(74, 111, 165, 0.1) !important;
+        }
+        
+        .fc-event {
+            border: none !important;
+            padding: 5px !important;
+            border-radius: 8px !important;
+        }
+        
+        .fc-event-morning {
+            background: linear-gradient(135deg, #4a6fa5 0%, #166088 100%) !important;
+        }
+        
+        .fc-event-afternoon {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%) !important;
+        }
+        
+        .fc-event-night {
+            background: linear-gradient(135deg, #673ab7 0%, #3f51b5 100%) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Staff Sidebar -->
+            <div class="col-lg-2 col-md-3 staff-sidebar">
+                <div class="d-flex flex-column align-items-center py-4">
+                    <img src="https://ui-avatars.com/api/?name=Staff+User&background=4a6fa5&color=fff&size=80" 
+                         alt="Profile" class="staff-profile-img mb-3" style="width: 80px; height: 80px;">
+                    <h5 id="staffName" class="mb-1">Emily Johnson</h5>
+                    <small class="text-light mb-3" id="staffEmail">staff@hms.com</small>
+                    <div class="staff-badge">STAFF - ADMINISTRATION</div>
+                </div>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#" data-section="overview">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="#" data-section="schedule">
+                        <i class="fas fa-calendar-alt"></i> My Schedule
+                    </a>
+                    <a class="nav-link" href="#" data-section="tasks">
+                        <i class="fas fa-tasks"></i> Tasks
+                        <span class="badge bg-danger rounded-pill float-end" id="taskCount">3</span>
+                    </a>
+                    <a class="nav-link" href="#" data-section="patients">
+                        <i class="fas fa-procedures"></i> Patients
+                    </a>
+                    <a class="nav-link" href="#" data-section="admissions">
+                        <i class="fas fa-hospital-user"></i> Admissions
+                        <span class="badge bg-info rounded-pill float-end" id="admissionCount">5</span>
+                    </a>
+                    <a class="nav-link" href="#" data-section="inventory">
+                        <i class="fas fa-boxes"></i> Inventory
+                        <span class="badge bg-warning rounded-pill float-end" id="lowStockCount">2</span>
+                    </a>
+                    <a class="nav-link" href="#" data-section="appointments">
+                        <i class="fas fa-calendar-check"></i> Appointments
+                    </a>
+                    <a class="nav-link" href="#" data-section="departments">
+                        <i class="fas fa-building"></i> Departments
+                    </a>
+                    <a class="nav-link" href="#" data-section="staff">
+                        <i class="fas fa-users"></i> Staff Directory
+                    </a>
+                    <a class="nav-link" href="#" data-section="messages">
+                        <i class="fas fa-envelope"></i> Messages
+                        <span class="badge bg-danger rounded-pill float-end" id="unreadCount">3</span>
+                    </a>
+                    <a class="nav-link" href="#" data-section="reports">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a>
+                    <div class="mt-4"></div>
+                    <a class="nav-link" href="#" data-section="profile">
+                        <i class="fas fa-user-cog"></i> Profile
+                    </a>
+                    <a class="nav-link text-warning" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </nav>
+                
+                <div class="mt-5 px-3">
+                    <div class="alert alert-light">
+                        <small>
+                            <i class="fas fa-info-circle text-primary"></i>
+                            <strong>Shift Today:</strong> 8:00 AM - 4:00 PM
+                        </small>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <small>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>System Notice:</strong> Inventory audit on Friday
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-0">
+                <!-- Navbar -->
+                <nav class="navbar navbar-expand-lg navbar-light staff-navbar">
+                    <div class="container-fluid">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-staff-outline me-3 d-lg-none" id="sidebarToggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h4 class="mb-0" id="pageTitle">Staff Dashboard</h4>
+                        </div>
+                        
+                        <div class="d-flex align-items-center">
+                            <!-- Quick Stats -->
+                            <div class="d-none d-md-flex me-4">
+                                <div class="me-3 text-end">
+                                    <small class="text-muted d-block">Current Shift</small>
+                                    <strong>08:00 - 16:00</strong>
+                                </div>
+                                <div class="me-3 text-end">
+                                    <small class="text-muted d-block">Tasks</small>
+                                    <strong class="text-warning">3 Pending</strong>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">Messages</small>
+                                    <strong class="text-danger">3 Unread</strong>
+                                </div>
+                            </div>
+                            
+                            <!-- Notifications -->
+                            <div class="dropdown me-3">
+                                <button class="btn btn-outline-primary position-relative" type="button" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="notification-dot"></span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end" style="width: 300px;">
+                                    <h6 class="dropdown-header">Notifications</h6>
+                                    <div id="notificationsList">
+                                        <a class="dropdown-item" href="#">
+                                            <small><strong>New admission</strong> - Room 301</small>
+                                            <small class="text-muted d-block">10 minutes ago</small>
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <small><strong>Low stock alert</strong> - Surgical Masks</small>
+                                            <small class="text-muted d-block">1 hour ago</small>
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <small><strong>Meeting reminder</strong> - Staff briefing</small>
+                                            <small class="text-muted d-block">2 hours ago</small>
+                                        </a>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-center" href="#">
+                                        <small>View All Notifications</small>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- User Menu -->
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center" 
+                                        type="button" data-bs-toggle="dropdown">
+                                    <img src="https://ui-avatars.com/api/?name=Staff+User&background=4a6fa5&color=fff&size=40" 
+                                         alt="Profile" class="staff-profile-img me-2">
+                                    <div class="text-start">
+                                        <small class="d-block" id="userName">Emily Johnson</small>
+                                        <small class="text-muted">Administration Staff</small>
+                                    </div>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item" href="#" data-section="profile">
+                                        <i class="fas fa-user me-2"></i>My Profile
+                                    </a>
+                                    <a class="dropdown-item" href="#" data-section="settings">
+                                        <i class="fas fa-cog me-2"></i>Settings
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger" href="#" onclick="logout()">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Main Content Area -->
+                <div class="p-4">
+                    <!-- Overview Dashboard -->
+                    <div id="overviewSection" class="dashboard-section">
+                        <!-- Quick Stats -->
+                        <div class="row mb-4">
+                            <div class="col-md-3 col-sm-6">
+                                <div class="staff-stat-card">
+                                    <i class="fas fa-users staff-stat-icon text-primary"></i>
+                                    <div class="staff-stat-number" id="totalPatients">127</div>
+                                    <div class="staff-stat-label">Total Patients</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="staff-stat-card warning">
+                                    <i class="fas fa-procedures staff-stat-icon text-warning"></i>
+                                    <div class="staff-stat-number" id="currentAdmissions">15</div>
+                                    <div class="staff-stat-label">Current Admissions</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="staff-stat-card success">
+                                    <i class="fas fa-calendar-check staff-stat-icon text-success"></i>
+                                    <div class="staff-stat-number" id="todayAppointments">24</div>
+                                    <div class="staff-stat-label">Today's Appointments</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="staff-stat-card danger">
+                                    <i class="fas fa-exclamation-triangle staff-stat-icon text-danger"></i>
+                                    <div class="staff-stat-number" id="lowStockItems">7</div>
+                                    <div class="staff-stat-label">Low Stock Items</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-2 col-sm-4 col-6">
+                                                <div class="quick-action-btn" onclick="quickAction('admit')">
+                                                    <i class="fas fa-hospital-user quick-action-icon"></i>
+                                                    <h6>Admit Patient</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 col-sm-4 col-6">
+                                                <div class="quick-action-btn" onclick="quickAction('schedule')">
+                                                    <i class="fas fa-calendar-plus quick-action-icon"></i>
+                                                    <h6>Schedule</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 col-sm-4 col-6">
+                                                <div class="quick-action-btn" onclick="quickAction('inventory')">
+                                                    <i class="fas fa-box quick-action-icon"></i>
+                                                    <h6>Add Stock</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 col-sm-4 col-6">
+                                                <div class="quick-action-btn" onclick="quickAction('message')">
+                                                    <i class="fas fa-envelope quick-action-icon"></i>
+                                                    <h6>Send Message</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 col-sm-4 col-6">
+                                                <div class="quick-action-btn" onclick="quickAction('report')">
+                                                    <i class="fas fa-file-alt quick-action-icon"></i>
+                                                    <h6>Generate Report</h6>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 col-sm-4 col-6">
+                                                <div class="quick-action-btn" onclick="quickAction('task')">
+                                                    <i class="fas fa-tasks quick-action-icon"></i>
+                                                    <h6>Add Task</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Recent Tasks -->
+                            <div class="col-lg-6">
+                                <div class="staff-card h-100">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-tasks me-2"></i>Recent Tasks</span>
+                                        <button class="btn btn-sm btn-light" onclick="loadSection('tasks')">
+                                            View All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="recentTasks">
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Admissions -->
+                            <div class="col-lg-6">
+                                <div class="staff-card h-100">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-hospital-user me-2"></i>Recent Admissions</span>
+                                        <button class="btn btn-sm btn-light" onclick="loadSection('admissions')">
+                                            View All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="recentAdmissions">
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <!-- Low Stock Alert -->
+                            <div class="col-lg-6">
+                                <div class="staff-card h-100">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alert</span>
+                                        <button class="btn btn-sm btn-light" onclick="loadSection('inventory')">
+                                            View All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="lowStockAlerts">
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Today's Schedule -->
+                            <div class="col-lg-6">
+                                <div class="staff-card h-100">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-calendar-day me-2"></i>Today's Schedule</span>
+                                        <button class="btn btn-sm btn-light" onclick="loadSection('schedule')">
+                                            View All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="todaySchedule">
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Schedule Section -->
+                    <div id="scheduleSection" class="dashboard-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="staff-card">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-calendar-alt me-2"></i>My Schedule</span>
+                                        <button class="btn btn-staff" onclick="addSchedule()">
+                                            <i class="fas fa-plus me-2"></i>Add Schedule
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="calendar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-calendar-plus me-2"></i>Add Schedule
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="scheduleForm">
+                                            <div class="mb-3">
+                                                <label class="form-label">Date</label>
+                                                <input type="date" class="form-control" id="scheduleDate" required>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Start Time</label>
+                                                    <input type="time" class="form-control" id="startTime" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">End Time</label>
+                                                    <input type="time" class="form-control" id="endTime" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Shift Type</label>
+                                                <select class="form-select" id="shiftType" required>
+                                                    <option value="morning">Morning (8:00 AM - 4:00 PM)</option>
+                                                    <option value="afternoon">Afternoon (4:00 PM - 12:00 AM)</option>
+                                                    <option value="night">Night (12:00 AM - 8:00 AM)</option>
+                                                    <option value="custom">Custom</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Department</label>
+                                                <select class="form-select" id="department" required>
+                                                    <option value="">Select Department</option>
+                                                    <option value="administration">Administration</option>
+                                                    <option value="emergency">Emergency</option>
+                                                    <option value="pharmacy">Pharmacy</option>
+                                                    <option value="reception">Reception</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Notes</label>
+                                                <textarea class="form-control" id="scheduleNotes" rows="3"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-staff w-100">
+                                                <i class="fas fa-save me-2"></i>Save Schedule
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tasks Section -->
+                    <div id="tasksSection" class="dashboard-section" style="display: none;">
+                        <div class="staff-card">
+                            <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-tasks me-2"></i>My Tasks</span>
+                                <div>
+                                    <select class="form-select form-select-sm me-2 d-inline w-auto" id="taskFilter">
+                                        <option value="all">All Tasks</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="in-progress">In Progress</option>
+                                        <option value="completed">Completed</option>
+                                    </select>
+                                    <button class="btn btn-staff" onclick="addTask()">
+                                        <i class="fas fa-plus me-2"></i>Add Task
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table staff-table" id="tasksTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Priority</th>
+                                                <th>Title</th>
+                                                <th>Description</th>
+                                                <th>Due Date</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tasksTableBody">
+                                            <tr>
+                                                <td colspan="6" class="text-center">Loading tasks...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Patients Section -->
+                    <div id="patientsSection" class="dashboard-section" style="display: none;">
+                        <div class="staff-card">
+                            <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-procedures me-2"></i>Patient Management</span>
+                                <div>
+                                    <input type="text" class="form-control form-control-sm me-2 d-inline w-auto" 
+                                           id="patientSearch" placeholder="Search patients...">
+                                    <button class="btn btn-staff" onclick="addPatient()">
+                                        <i class="fas fa-plus me-2"></i>Add Patient
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table staff-table" id="patientsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Patient ID</th>
+                                                <th>Name</th>
+                                                <th>Contact</th>
+                                                <th>Age</th>
+                                                <th>Blood Group</th>
+                                                <th>Last Visit</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="patientsTableBody">
+                                            <tr>
+                                                <td colspan="8" class="text-center">Loading patients...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Admissions Section -->
+                    <div id="admissionsSection" class="dashboard-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="staff-card">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-hospital-user me-2"></i>Admissions Management</span>
+                                        <button class="btn btn-staff" onclick="admitPatient()">
+                                            <i class="fas fa-plus me-2"></i>Admit Patient
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table staff-table" id="admissionsTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Admission ID</th>
+                                                        <th>Patient</th>
+                                                        <th>Admission Date</th>
+                                                        <th>Room/Bed</th>
+                                                        <th>Diagnosis</th>
+                                                        <th>Doctor</th>
+                                                        <th>Status</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="admissionsTableBody">
+                                                    <tr>
+                                                        <td colspan="8" class="text-center">Loading admissions...</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-bed me-2"></i>Room Occupancy
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="roomOccupancy">
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="staff-card mt-4">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-chart-line me-2"></i>Admission Statistics
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="admissionChart" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Inventory Section -->
+                    <div id="inventorySection" class="dashboard-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="staff-card">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-boxes me-2"></i>Inventory Management</span>
+                                        <div>
+                                            <select class="form-select form-select-sm me-2 d-inline w-auto" id="inventoryFilter">
+                                                <option value="all">All Items</option>
+                                                <option value="low">Low Stock</option>
+                                                <option value="medication">Medication</option>
+                                                <option value="equipment">Equipment</option>
+                                                <option value="supply">Supplies</option>
+                                            </select>
+                                            <button class="btn btn-staff" onclick="addInventoryItem()">
+                                                <i class="fas fa-plus me-2"></i>Add Item
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table staff-table" id="inventoryTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Item Name</th>
+                                                        <th>Type</th>
+                                                        <th>Category</th>
+                                                        <th>Quantity</th>
+                                                        <th>Reorder Level</th>
+                                                        <th>Location</th>
+                                                        <th>Last Updated</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="inventoryTableBody">
+                                                    <tr>
+                                                        <td colspan="8" class="text-center">Loading inventory...</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-chart-pie me-2"></i>Inventory Summary
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="inventoryChart" height="200"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="staff-card mt-4">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-exchange-alt me-2"></i>Recent Transactions
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="recentTransactions">
+                                            <div class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Appointments Section -->
+                    <div id="appointmentsSection" class="dashboard-section" style="display: none;">
+                        <div class="staff-card">
+                            <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-calendar-check me-2"></i>Appointment Management</span>
+                                <div>
+                                    <input type="date" class="form-control form-control-sm me-2 d-inline w-auto" 
+                                           id="appointmentDateFilter" value="">
+                                    <button class="btn btn-staff" onclick="scheduleAppointment()">
+                                        <i class="fas fa-plus me-2"></i>Schedule
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table staff-table" id="appointmentsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Patient</th>
+                                                <th>Doctor</th>
+                                                <th>Department</th>
+                                                <th>Reason</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="appointmentsTableBody">
+                                            <tr>
+                                                <td colspan="7" class="text-center">Loading appointments...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Departments Section -->
+                    <div id="departmentsSection" class="dashboard-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="staff-card">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-building me-2"></i>Departments</span>
+                                        <button class="btn btn-staff" onclick="addDepartment()">
+                                            <i class="fas fa-plus me-2"></i>Add Department
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row" id="departmentsGrid">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card h-100">
+                                                    <div class="card-body">
+                                                        <h5>Emergency</h5>
+                                                        <p class="text-muted">Emergency Medicine Department</p>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span><i class="fas fa-user-md"></i> 5 Doctors</span>
+                                                            <span><i class="fas fa-user-nurse"></i> 8 Nurses</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-chart-bar me-2"></i>Department Statistics
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="departmentChart" height="250"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Staff Directory Section -->
+                    <div id="staffSection" class="dashboard-section" style="display: none;">
+                        <div class="staff-card">
+                            <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-users me-2"></i>Staff Directory</span>
+                                <div>
+                                    <input type="text" class="form-control form-control-sm me-2 d-inline w-auto" 
+                                           id="staffSearch" placeholder="Search staff...">
+                                    <select class="form-select form-select-sm me-2 d-inline w-auto" id="staffFilter">
+                                        <option value="all">All Roles</option>
+                                        <option value="doctor">Doctors</option>
+                                        <option value="nurse">Nurses</option>
+                                        <option value="staff">Staff</option>
+                                        <option value="admin">Admins</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table staff-table" id="staffTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Staff ID</th>
+                                                <th>Name</th>
+                                                <th>Role</th>
+                                                <th>Department</th>
+                                                <th>Contact</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="staffTableBody">
+                                            <tr>
+                                                <td colspan="7" class="text-center">Loading staff directory...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages Section -->
+                    <div id="messagesSection" class="dashboard-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="staff-card">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-inbox me-2"></i>Inbox</span>
+                                        <span class="badge bg-danger" id="unreadCountBadge">3</span>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="list-group list-group-flush" id="messageList">
+                                            <a href="#" class="list-group-item list-group-item-action active">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h6 class="mb-1">Dr. John Smith</h6>
+                                                    <small>10:30 AM</small>
+                                                </div>
+                                                <p class="mb-1">Patient admission form needed</p>
+                                                <small class="text-light">Urgent</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="staff-card mt-4">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-paper-plane me-2"></i>Compose Message
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="messageForm">
+                                            <div class="mb-3">
+                                                <label class="form-label">To</label>
+                                                <select class="form-select" id="messageTo" required>
+                                                    <option value="">Select Recipient</option>
+                                                    <option value="all">All Staff</option>
+                                                    <option value="doctors">All Doctors</option>
+                                                    <option value="nurses">All Nurses</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Subject</label>
+                                                <input type="text" class="form-control" id="messageSubject" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Message</label>
+                                                <textarea class="form-control" id="messageContent" rows="4" required></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Priority</label>
+                                                <select class="form-select" id="messagePriority">
+                                                    <option value="normal">Normal</option>
+                                                    <option value="important">Important</option>
+                                                    <option value="urgent">Urgent</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-staff w-100">
+                                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="staff-card h-100">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span id="messageViewTitle">Message</span>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary ms-2">
+                                                <i class="fas fa-reply"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body" id="messageView">
+                                        <div class="text-center py-5">
+                                            <i class="fas fa-envelope-open-text fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Select a message to view</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reports Section -->
+                    <div id="reportsSection" class="dashboard-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-file-alt me-2"></i>Generate Report
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="reportForm">
+                                            <div class="mb-3">
+                                                <label class="form-label">Report Type</label>
+                                                <select class="form-select" id="reportType" required>
+                                                    <option value="">Select Report Type</option>
+                                                    <option value="admission">Admission Report</option>
+                                                    <option value="inventory">Inventory Report</option>
+                                                    <option value="appointment">Appointment Report</option>
+                                                    <option value="billing">Billing Report</option>
+                                                    <option value="staff">Staff Report</option>
+                                                </select>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Start Date</label>
+                                                    <input type="date" class="form-control" id="reportStartDate" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">End Date</label>
+                                                    <input type="date" class="form-control" id="reportEndDate" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Format</label>
+                                                <select class="form-select" id="reportFormat">
+                                                    <option value="pdf">PDF</option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-staff w-100">
+                                                <i class="fas fa-download me-2"></i>Generate Report
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-chart-line me-2"></i>System Analytics
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="analyticsChart" height="100"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-md-6">
+                                        <div class="staff-card">
+                                            <div class="staff-card-header">
+                                                <i class="fas fa-hospital me-2"></i>Monthly Admissions
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="monthlyAdmissionsChart" height="150"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="staff-card">
+                                            <div class="staff-card-header">
+                                                <i class="fas fa-user-injured me-2"></i>Patient Demographics
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="demographicsChart" height="150"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Section -->
+                    <div id="profileSection" class="dashboard-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-user me-2"></i>Profile Picture
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <img src="https://ui-avatars.com/api/?name=Staff+User&background=4a6fa5&color=fff&size=150" 
+                                             alt="Profile" class="rounded-circle mb-3" style="width: 150px; height: 150px;">
+                                        <button class="btn btn-staff-outline btn-sm">
+                                            <i class="fas fa-camera me-2"></i>Change Photo
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="staff-card mt-4">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-shield-alt me-2"></i>Account Security
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Current Password</label>
+                                            <input type="password" class="form-control">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">New Password</label>
+                                            <input type="password" class="form-control">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Confirm New Password</label>
+                                            <input type="password" class="form-control">
+                                        </div>
+                                        <button class="btn btn-staff">Update Password</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-8">
+                                <div class="staff-card">
+                                    <div class="staff-card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-user-edit me-2"></i>Personal Information</span>
+                                        <button class="btn btn-staff" onclick="editProfile()">
+                                            <i class="fas fa-edit me-2"></i>Edit Profile
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="personalInfo">
+                                            <dl class="row">
+                                                <dt class="col-sm-3">Full Name</dt>
+                                                <dd class="col-sm-9">Emily Johnson</dd>
+                                                
+                                                <dt class="col-sm-3">Employee ID</dt>
+                                                <dd class="col-sm-9">EMP-00123</dd>
+                                                
+                                                <dt class="col-sm-3">Email Address</dt>
+                                                <dd class="col-sm-9">staff@hms.com</dd>
+                                                
+                                                <dt class="col-sm-3">Phone Number</dt>
+                                                <dd class="col-sm-9">(555) 123-4567</dd>
+                                                
+                                                <dt class="col-sm-3">Department</dt>
+                                                <dd class="col-sm-9">Administration</dd>
+                                                
+                                                <dt class="col-sm-3">Position</dt>
+                                                <dd class="col-sm-9">Administrative Staff</dd>
+                                                
+                                                <dt class="col-sm-3">Date Joined</dt>
+                                                <dd class="col-sm-9">January 15, 2023</dd>
+                                                
+                                                <dt class="col-sm-3">Address</dt>
+                                                <dd class="col-sm-9">123 Staff Street, Anytown, USA</dd>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="staff-card mt-4">
+                                    <div class="staff-card-header">
+                                        <i class="fas fa-briefcase me-2"></i>Work Information
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Current Shift</h6>
+                                                <p>Morning (8:00 AM - 4:00 PM)</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Days Working</h6>
+                                                <p>Monday - Friday</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-md-6">
+                                                <h6>Supervisor</h6>
+                                                <p>John Smith (Administration Manager)</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Emergency Contact</h6>
+                                                <p>Michael Johnson (555) 987-6543</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal fade" id="admitPatientModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Admit Patient</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="admitPatientForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Select Patient</label>
+                                <select class="form-select" id="patientSelect" required>
+                                    <option value="">Search or select patient...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Admission Type</label>
+                                <select class="form-select" id="admissionType" required>
+                                    <option value="scheduled">Scheduled</option>
+                                    <option value="emergency">Emergency</option>
+                                    <option value="transfer">Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Room Number</label>
+                                <select class="form-select" id="roomNumber" required>
+                                    <option value="">Select room...</option>
+                                    <option value="301">301</option>
+                                    <option value="302">302</option>
+                                    <option value="303">303</option>
+                                    <option value="304">304</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Bed Number</label>
+                                <select class="form-select" id="bedNumber" required>
+                                    <option value="">Select bed...</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Attending Doctor</label>
+                                <select class="form-select" id="attendingDoctor" required>
+                                    <option value="">Select doctor...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Admission Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="admissionDateTime" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Primary Diagnosis</label>
+                            <textarea class="form-control" id="diagnosis" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Admission Notes</label>
+                            <textarea class="form-control" id="admissionNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-staff" onclick="submitAdmission()">Admit Patient</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="inventoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Inventory Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="inventoryForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Item Name</label>
+                                <input type="text" class="form-control" id="itemName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Item Type</label>
+                                <select class="form-select" id="itemType" required>
+                                    <option value="">Select type...</option>
+                                    <option value="medication">Medication</option>
+                                    <option value="equipment">Equipment</option>
+                                    <option value="supply">Supply</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Category</label>
+                                <input type="text" class="form-control" id="itemCategory">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Initial Quantity</label>
+                                <input type="number" class="form-control" id="itemQuantity" required min="0">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Unit</label>
+                                <input type="text" class="form-control" id="itemUnit" placeholder="e.g., tablets, pieces">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Reorder Level</label>
+                                <input type="number" class="form-control" id="reorderLevel" required min="0">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Supplier</label>
+                                <input type="text" class="form-control" id="supplier">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Location</label>
+                                <input type="text" class="form-control" id="itemLocation">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" id="itemNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-staff" onclick="submitInventoryItem()">Add Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="adjustStockModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Adjust Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="adjustStockForm">
+                        <div class="mb-3">
+                            <label class="form-label">Item</label>
+                            <input type="text" class="form-control" id="adjustItemName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Current Stock</label>
+                            <input type="text" class="form-control" id="currentStock" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Action</label>
+                            <select class="form-select" id="adjustAction" required>
+                                <option value="add">Add Stock</option>
+                                <option value="remove">Remove Stock</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="adjustQuantity" required min="1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" id="adjustNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-staff" onclick="submitStockAdjustment()">Adjust Stock</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="dischargeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Discharge Patient</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="dischargeForm">
+                        <div class="mb-3">
+                            <label class="form-label">Patient Name</label>
+                            <input type="text" class="form-control" id="dischargePatient" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Discharge Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="dischargeDateTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Discharge Summary</label>
+                            <textarea class="form-control" id="dischargeSummary" rows="4" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-staff" onclick="submitDischarge()">Discharge Patient</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="taskModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="taskForm">
+                        <div class="mb-3">
+                            <label class="form-label">Task Title</label>
+                            <input type="text" class="form-control" id="taskTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="taskDescription" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="taskPriority" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Due Date</label>
+                                <input type="date" class="form-control" id="taskDueDate" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-staff" onclick="submitTask()">Add Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript Files -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/staff-dashboard.js"></script>
+</body>
+</html>
