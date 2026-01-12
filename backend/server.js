@@ -47,3 +47,9 @@ const staffRoutes = require('./routes/staff.routes');
 
 // Add this with other route middleware
 app.use('/api/staff', staffRoutes);
+
+// Add this with other route imports
+const adminRoutes = require('./routes/admin.routes');
+
+// Add this with other route middleware
+app.use('/api/admin', adminRoutes);
